@@ -4,11 +4,14 @@ import com.azygmunt.models.Cheese;
 import com.azygmunt.models.CheeseData;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.Errors;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.validation.Valid;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -31,12 +34,19 @@ public class CheeseController {
     @RequestMapping(value = "add", method = RequestMethod.GET)
     public String displayAddCheeseForm(Model model){
         model.addAttribute("title","Add Cheese");
+        model.addAttribute(new Cheese());
         return "cheese/add";
     }
 
     @RequestMapping(value = "add", method = RequestMethod.POST)
-    public String processAddCheeseForm(@RequestParam String cheeseName, @RequestParam String cheeseDescription){
-        Cheese newCheese = new Cheese(cheeseName,cheeseDescription);
+    public String processAddCheeseForm(@ModelAttribute @Valid Cheese newCheese,
+                                       Errors errors, Model model){
+
+        if (errors.hasErrors()){
+            model.addAttribute("title","Add Cheese");
+            return "cheese/add";
+        }
+
         CheeseData.add(newCheese);
         return "redirect:";
     }
